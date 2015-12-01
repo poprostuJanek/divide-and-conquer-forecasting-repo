@@ -1,0 +1,18 @@
+function main(method,period)
+%which method we would like to use for forecasting for example
+%'arima210' (arima and last 3 numbers are parameters p,d,q) or 
+%'nn' (neural network automated generetad matlab script, please see matlabNeuralNetworkScript.m) 
+%period is maximal period taken into consideration
+load chickenpox_dataset.MAT
+time_series = cell2mat(chickenpoxTargets);
+error1 = 'SMAPE';
+error2 = 'SMAPE';
+period = 4;
+method ='arima210';
+horizon = 12;
+
+%load some time series.
+
+[SMAPE_error forecasted_values]= error_of_h_steps_ahead_forecasting(k,time_series,10,method,horizon,error,error);
+save(strcat('SMAPE_',num2str(z_min),'_',num2str(z_max),'_',method,'.mat'),'SMAPE_error');
+end
