@@ -1,9 +1,13 @@
-function X_PREDICTION = forecasting_with_S(X,horizon,S,metoda)
+function X_PREDICTION = forecasting_with_S(X,testset_multivariables,horizon,S,metoda)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
 if size(X,1)>size(X,2)
     X =X.';
+end
+
+if size(testset_multivariables,1)>size(testset_multivariables,2)
+    testset_multivariables =testset_multivariables.';
 end
 
 
@@ -31,10 +35,13 @@ if d>0
    %wybieranie metody
    temp_end = size(S_p,2)-horizon;
    train_set = create_subseries(S_p(i,1:temp_end), X.').'; 
+   testset_multivariables_temp = create_subseries(S_p(i,temp_end+1:end), testset_multivariables.').'; 
       %Right now only two methods. ARIMA and Neural Network. Place for
       %other methods implementation.
     if(strcmp(metoda,'arima'))
        forecasted_matrix(i,1:d) = forecasting_with_ARIMA_horizont(train_set,d);
+    elseif(strcmp(metoda,'fitlm'))
+       forecasted_matrix(i,1:d) = forecasting_with_FITLM_horizont(train_set,testset_multivariables_temp,d);
     else        
        forecasted_matrix(i,1:d) = forecasting_with_NN(train_set,d);
     end
