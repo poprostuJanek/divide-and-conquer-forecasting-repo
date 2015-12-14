@@ -87,7 +87,7 @@ c = 1:1:size(my_prediction,1);
 
 my_prediction = [c.' my_prediction];
 r= my_prediction;
-str=strcat('forecasted_values_',num2str(z_min),'_',num2str(z_max),'_',method,'period_',num2str(period),'.mat');
+str=strcat('forecasted_values_',num2str(z_min),'_',num2str(z_max),'_',method,'period_',num2str(period),'.csv');
 str1= strcat(num2str(r(:,1),'%0.0f'),',',num2str(r(:,2),'%0.1f'));
 dlmwrite(str,str1,'-append', 'delimiter', '', 'precision','%0.1f','newline', 'pc'); 
 
