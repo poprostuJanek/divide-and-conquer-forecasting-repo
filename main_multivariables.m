@@ -1,9 +1,11 @@
+function main_multivariables(period)
+
 %load some time series.
 error1 = 'SMAPE';
 %Error measurement use during S matrix creation. 
 error2 = 'SMAPE';
 %Error measurement use in finial test. 
-period = 4;
+%period = 4;
 %period is maximal period taken into consideration
 method ='varmax';
 %which method we would like to use for forecasting for example
@@ -68,4 +70,26 @@ forecasted_values(z,:) = h_steps_ahead_forecasting(period,time_series.',testset_
 save(strcat('forecasted_values_',num2str(z_min),'_',num2str(z_max),'_',method,'period_',num2str(period),'.mat'),'forecasted_values');
 z
 end
+end
+
+
+
+my_prediction = [];
+z = 1;
+aaa = 1;
+forecasted_values(all(forecasted_values==0,2),:)=[];
+forecasted_values = fliplr(forecasted_values);
+for i=1:1:size(forecasted_values,2)
+    my_prediction = [my_prediction;forecasted_values(:,i)];
+end
+
+c = 1:1:size(my_prediction,1);
+
+my_prediction = [c.' my_prediction];
+r= my_prediction;
+str=strcat('forecasted_values_',num2str(z_min),'_',num2str(z_max),'_',method,'period_',num2str(period),'.mat');
+str1= strcat(num2str(r(:,1),'%0.0f'),',',num2str(r(:,2),'%0.1f'));
+dlmwrite(str,str1,'-append', 'delimiter', '', 'precision','%0.1f','newline', 'pc'); 
+
+
 end
