@@ -32,6 +32,12 @@ subseries = create_subseries(S(i,2:end-1),X);
         temp_fitlm_pred = forecasting_with_FITLM_horizont(subseries(:,1:end-horizon),subseries(2:end,end-horizon+1:end),horizon);     
         MSE_Fitlm = mean((temp_fitlm_pred-testing_subseries).^2);
         S(i,end) = MSE_Fitlm;
+    elseif ((findstr('varmax', method)) == 1)
+        horizon = 12;
+        testing_subseries = subseries(1,end-horizon+1:end);
+        temp_varmax_pred = forecasting_with_VARMAX_horizont(subseries(:,1:end-horizon),subseries(2:end,end-horizon+1:end),horizon,1,0);
+        MSE_varmax = mean((temp_varmax_pred.'-testing_subseries).^2);
+        S(i,end) = MSE_varmax;
     else
     %     if size(X,2)*0.1 > 10
     %         horizon = round(size(X,2)*0.1);

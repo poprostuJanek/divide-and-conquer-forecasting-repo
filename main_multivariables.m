@@ -1,26 +1,3 @@
-A = cos(0:0.1:100)*10;
-A_tested = A(101:120);
-A= A(1:100);
-
-% B = []
-% for i=1:1:110
-%     if mod(i,2) ==0
-%         B = [B 0];
-%     else
-%         B = [B 1];
-%     end
-% end
- B = sin(0:0.1:100)*10;
- B_tested = B(101:120);
- B=B(1:100);
-% B= B(1:100);
-C = A(1)+B(1);
-for i = 2:1:100
-    C(i) =  A(i)+B(i) + C(i-1);
-end
-%C= A + B;
-time_series = [C;A;B].';
-testset_multivariables = [A_tested;B_tested].';
 %load some time series.
 error1 = 'SMAPE';
 %Error measurement use during S matrix creation. 
@@ -28,12 +5,67 @@ error2 = 'SMAPE';
 %Error measurement use in finial test. 
 period = 4;
 %period is maximal period taken into consideration
-method ='fitlm';
+method ='varmax';
 %which method we would like to use for forecasting for example
 %'arima210' (arima and last 3 numbers are parameters p,d,q) or 
 %'nn' (neural network automated generetad matlab script, please see matlabNeuralNetworkScript.m) 
-horizon = 12;
+horizon = 48;
 minimal_subseries_length = 10;
 testset = [];
+
+
+%train = importfile_train_wszystkie('train.csv', 2, 1017210);
+%testset_multivariables = importfile_test_wszystkie('test.csv', 2, 41089);
+%train = importfile_train_wszystkie('train.csv', 2, 10000);
+%testset_multivariables = importfile_test_wszystkie('test.csv', 2, 1000);
+load train.mat
+load test.mat
 %[SMAPE_error forecasted_values]= error_of_h_steps_ahead_forecasting(period,time_series,testset_multivariables,minimal_series_length,method,horizon,error1,error2);
-X_PREDICTION = h_steps_ahead_forecasting(period,time_series,testset_multivariables,minimal_subseries_length,method,horizon,error1);
+%usuwanie wierszow skorelowanych z treningu i testow
+additional_information = train(:,2:end);
+[additional_information,testset_multivariables, idx] = linear_independent(additional_information,testset_multivariables);
+
+train =  [train(:,1) additional_information];
+train(isnan(train)) = 0 ;
+testset_multivariables(isnan(testset_multivariables)) = 0 ;
+z_min = 1;
+z_max = size(train,1);
+
+
+train = flipud(train);
+testset_multivariables = flipud(testset_multivariables);
+horizont = zeros(1,1115);
+for i=1:1:size(testset_multivariables,1)
+    horizont(testset_multivariables(i,1)) =  horizont(testset_multivariables(i,1))+1;
+end
+horizont = flipud(horizont);
+horizon = 48;
+forecasted_values = zeros(1115,horizon);
+
+for z=z_min:1:1115
+if(horizont(z) >0)
+n = size(train,1);
+time_series = [];
+testset_multivariables_time_series = [];
+for i=1:1:n
+    if train(i,2) == z
+        time_series = [time_series;train(i,:)];
+    end
+end
+n = size(testset_multivariables,1);
+for i=1:1:n
+    if testset_multivariables(i,1) == z
+        testset_multivariables_time_series =  [testset_multivariables_time_series; testset_multivariables(i,:)];
+    end
+end   
+additional_information = time_series(:,2:end);
+[additional_information,testset_multivariables_time_series, idx] = linear_independent(additional_information,testset_multivariables_time_series);
+time_series =  [time_series(:,1) additional_information];
+
+time_series = [time_series(:,1) time_series(:,3:end)];
+testset_multivariables_time_series = testset_multivariables_time_series(:,2:end);
+forecasted_values(z,:) = h_steps_ahead_forecasting(period,time_series.',testset_multivariables_time_series,minimal_subseries_length,method,horizon,error1);
+save(strcat('forecasted_values_',num2str(z_min),'_',num2str(z_max),'_',method,'period_',num2str(period),'.mat'),'forecasted_values');
+z
+end
+end

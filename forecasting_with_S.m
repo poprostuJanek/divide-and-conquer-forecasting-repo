@@ -36,12 +36,13 @@ if d>0
    temp_end = size(S_p,2)-horizon;
    train_set = create_subseries(S_p(i,1:temp_end), X.').'; 
    testset_multivariables_temp = create_subseries(S_p(i,temp_end+1:end), testset_multivariables.').'; 
-      %Right now only two methods. ARIMA and Neural Network. Place for
-      %other methods implementation.
+      %Different methods 
     if(strcmp(metoda,'arima'))
        forecasted_matrix(i,1:d) = forecasting_with_ARIMA_horizont(train_set,d);
     elseif(strcmp(metoda,'fitlm'))
        forecasted_matrix(i,1:d) = forecasting_with_FITLM_horizont(train_set,testset_multivariables_temp,d);
+    elseif(strcmp(metoda,'varmax'))
+       forecasted_matrix(i,1:d) = forecasting_with_VARMAX_horizont(train_set,testset_multivariables_temp,d,1,0);
     else        
        forecasted_matrix(i,1:d) = forecasting_with_NN(train_set,d);
     end
